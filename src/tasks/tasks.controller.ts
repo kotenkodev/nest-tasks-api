@@ -46,7 +46,7 @@ export class TasksController {
       return this.tasksService.update(task, updateTaskDto);
     } catch (error) {
       if (error instanceof WrongTaskStatusException) {
-        throw new BadRequestException('Invalid status transition');
+        throw new BadRequestException([error.message]);
       }
       throw error;
     }
