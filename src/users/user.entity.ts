@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Task } from '../tasks/task.entity';
 import {
   Column,
@@ -20,6 +21,7 @@ export class User {
   email: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @CreateDateColumn()

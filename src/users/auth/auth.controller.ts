@@ -1,4 +1,11 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Post,
+  SerializeOptions,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { LoginDto } from '../dtos/login.dto';
 import { AuthService } from './auth.service';
@@ -6,6 +13,8 @@ import { User } from '../user.entity';
 import { LoginResponse } from '../dtos/login.response';
 
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({ strategy: 'exposeAll' })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
