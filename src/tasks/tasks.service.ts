@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TaskStatus } from './task.model';
 import { CreateTaskDto } from './dtos/create-task.dto';
-import { randomUUID } from 'crypto';
 import { UpdateTaskDto } from './dtos/update-task.dto';
 import { WrongTaskStatusException } from './exceptions/wrong-task-status.exception';
 import { Repository } from 'typeorm';
@@ -15,11 +14,14 @@ export class TasksService {
   ) {}
 
   async findAll(): Promise<Task[]> {
-    return await this.taskRepository.find();
+    return await this.taskRepository.find({ relations: ['labels'] });
   }
 
   async findOne(id: string): Promise<Task | null> {
-    return await this.taskRepository.findOne({ where: { id } });
+    return await this.taskRepository.findOne({
+      where: { id },
+      relations: ['labels'],
+    });
   }
 
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
