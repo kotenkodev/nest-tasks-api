@@ -18,8 +18,8 @@ import { WrongTaskStatusException } from './exceptions/wrong-task-status.excepti
 import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
 import { Task } from './task.entity';
 import { FindTaskParamsDto } from './dtos/find-task.params';
-import { PaginationParams } from 'src/common/pagination.params';
-import { PaginationResponse } from 'src/common/pagination-response';
+import { PaginationParams } from '../common/pagination.params';
+import { PaginationResponse } from '../common/pagination-response';
 
 @Controller('tasks')
 export class TasksController {

@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
 import { TaskLabel } from './task-label.entity';
 import { FindTaskParamsDto } from './dtos/find-task.params';
-import { PaginationParams } from 'src/common/pagination.params';
+import { PaginationParams } from '../common/pagination.params';
 
 @Injectable()
 export class TasksService {
