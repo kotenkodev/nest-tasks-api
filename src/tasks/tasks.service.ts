@@ -68,14 +68,30 @@ export class TasksService {
   }
 
   async addLabels(task: Task, labelDtos: CreateTaskLabelDto[]): Promise<Task> {
-    const labels = labelDtos.map((dto) => this.labelRepository.create(dto));
+    const names = new Set(task.labels.map((label) => label.name));
+
+    const labels = this.getUniqueLabels(labelDtos)
+      .filter((dto) => !names.has(dto.name))
+      .map((dto) => this.labelRepository.create(dto));
+
+    if (labels.length === 0) {
+      return task;
+    }
 
     task.labels = [...task.labels, ...labels];
     return await this.taskRepository.save(task);
   }
 
-  async delete(id: string) {
-    return await this.taskRepository.delete(id);
+  async removeLabels(task: Task, labelNames: string[]): Promise<void> {
+    task.labels = task.labels.filter((label) =>
+      labelNames.includes(label.name),
+    );
+
+    await this.taskRepository.save(task);
+  }
+
+  async delete(task: Task): Promise<void> {
+    await this.taskRepository.remove(task);
   }
 
   getUniqueLabels(labelDtos: CreateTaskLabelDto[]): CreateTaskLabelDto[] {

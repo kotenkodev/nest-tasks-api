@@ -61,10 +61,19 @@ export class TasksController {
     return await this.tasksService.addLabels(task, labelDtos);
   }
 
+  @Delete(':id/lables')
+  async removeLabels(
+    @Param() params: FindOneParamsDto,
+    @Body() labelNames: string[],
+  ) {
+    const task = await this.findOneOrThrow(params.id);
+    return await this.tasksService.removeLabels(task, labelNames);
+  }
+
   @Delete(':id')
   async deleteTask(@Param() params: FindOneParamsDto) {
     const task = await this.findOneOrThrow(params.id);
-    return await this.tasksService.delete(task.id);
+    return await this.tasksService.delete(task);
   }
 
   private async findOneOrThrow(id: string) {
