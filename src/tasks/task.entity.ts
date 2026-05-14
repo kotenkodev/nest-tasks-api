@@ -5,11 +5,10 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { TaskStatus } from './task.model';
-import { User } from 'src/users/user.entity';
+import { User } from '../users/user.entity';
 import { TaskLabel } from './task-label.entity';
 
 @Entity()

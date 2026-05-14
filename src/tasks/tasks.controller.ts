@@ -80,7 +80,7 @@ export class TasksController {
   async removeLabels(
     @Param() params: FindOneParamsDto,
     @Body() labelNames: string[],
-  ): Promise<void> {
+  ): Promise<Task> {
     const task = await this.findOneOrThrow(params.id);
     return await this.tasksService.removeLabels(task, labelNames);
   }

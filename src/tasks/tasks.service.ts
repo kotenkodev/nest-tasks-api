@@ -3,14 +3,13 @@ import { TaskStatus } from './task.model';
 import { CreateTaskDto } from './dtos/create-task.dto';
 import { UpdateTaskDto } from './dtos/update-task.dto';
 import { WrongTaskStatusException } from './exceptions/wrong-task-status.exception';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTaskLabelDto } from './dtos/create-task-label.dto';
 import { TaskLabel } from './task-label.entity';
 import { FindTaskParamsDto } from './dtos/find-task.params';
 import { PaginationParams } from 'src/common/pagination.params';
-import { PaginationResponse } from 'src/common/pagination-response';
 
 @Injectable()
 export class TasksService {
@@ -118,12 +117,12 @@ export class TasksService {
     return await this.taskRepository.save(task);
   }
 
-  async removeLabels(task: Task, labelNames: string[]): Promise<void> {
-    task.labels = task.labels.filter((label) =>
-      labelNames.includes(label.name),
+  async removeLabels(task: Task, labelNames: string[]): Promise<Task> {
+    task.labels = task.labels.filter(
+      (label) => !labelNames.includes(label.name),
     );
 
-    await this.taskRepository.save(task);
+    return await this.taskRepository.save(task);
   }
 
   async delete(task: Task): Promise<void> {
