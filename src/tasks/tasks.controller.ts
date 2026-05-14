@@ -12,7 +12,6 @@ import {
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dtos/create-task.dto';
 import { FindOneParamsDto } from './dtos/find-one.params';
-import { UpdateTaskStatusDto } from './dtos/update-task-status.dto';
 import { UpdateTaskDto } from './dtos/update-task.dto';
 import { WrongTaskStatusException } from './exceptions/wrong-task-status.exception';
 
@@ -37,13 +36,13 @@ export class TasksController {
   }
 
   @Patch(':id')
-  updateTask(
+  async updateTask(
     @Param() params: FindOneParamsDto,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
     try {
-      const task = this.findOneOrThrow(params.id);
-      return this.tasksService.update(task, updateTaskDto);
+      const task = await this.findOneOrThrow(params.id);
+      return await this.tasksService.update(task, updateTaskDto);
     } catch (error) {
       if (error instanceof WrongTaskStatusException) {
         throw new BadRequestException([error.message]);
@@ -53,13 +52,13 @@ export class TasksController {
   }
 
   @Delete(':id')
-  deleteTask(@Param() params: FindOneParamsDto) {
-    const task = this.findOneOrThrow(params.id);
-    this.tasksService.delete(task.id);
+  async deleteTask(@Param() params: FindOneParamsDto) {
+    const task = await this.findOneOrThrow(params.id);
+    return await this.tasksService.delete(task.id);
   }
 
-  private findOneOrThrow(id: string) {
-    const task = this.tasksService.findOne(id);
+  private async findOneOrThrow(id: string) {
+    const task = await this.tasksService.findOne(id);
     if (!task) {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
