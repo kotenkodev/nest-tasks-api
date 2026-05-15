@@ -1,4 +1,4 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { Task } from '../tasks/task.entity';
 import {
   Column,
@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Role } from './dtos/role.enum';
 
 @Entity()
 export class User {
@@ -32,4 +33,7 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.user, { cascade: true })
   tasks: Task[];
+
+  @Column('text', { array: true, default: [Role.USER] })
+  roles: Role[];
 }

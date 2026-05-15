@@ -1,6 +1,11 @@
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { TestSetup } from './config/utils/test-setup';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from '../src/users/user.entity';
+import { Role } from '../src/users/dtos/role.enum';
+import { PasswordService } from '../src/users/password/password.service';
+import { JwtService } from '@nestjs/jwt';
 
 describe('AppController (e2e)', () => {
   let testSetup: TestSetup;
@@ -58,6 +63,48 @@ describe('AppController (e2e)', () => {
       .expect((res) => {
         expect(res.body.accessToken).toBeDefined();
       });
+  });
+
+  it('should require auth', async () => {
+    await request(testSetup.app.getHttpServer()).post('/tasks').expect(401);
+  });
+
+  it('should allow public route access', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/auth/register')
+      .send(testUser)
+      .expect(201);
+
+    await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send(testUser)
+      .expect(201);
+  });
+
+  it('should include roles in JWT token', async () => {
+    const userRepo = testSetup.app.get(getRepositoryToken(User));
+
+    await userRepo.save({
+      ...testUser,
+      password: await testSetup.app
+        .get(PasswordService)
+        .hash(testUser.password),
+      roles: [Role.ADMIN, Role.USER],
+    });
+
+    const response = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send(testUser);
+
+    const decoded = testSetup.app
+      .get(JwtService)
+      .verify(response.body.accessToken);
+
+    console.log(decoded);
+
+    expect(decoded.roles).toEqual(
+      expect.arrayContaining([Role.ADMIN, Role.USER]),
+    );
   });
 
   it('auth/profile (GET)', async () => {
