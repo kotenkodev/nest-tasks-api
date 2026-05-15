@@ -3,12 +3,14 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  Request,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dtos/create-task.dto';
@@ -20,6 +22,7 @@ import { Task } from './task.entity';
 import { FindTaskParamsDto } from './dtos/find-task.params';
 import { PaginationParams } from '../common/pagination.params';
 import { PaginationResponse } from '../common/pagination-response';
+import { CurrentUserId } from '../users/decorators/current-user-id.decorator';
 
 @Controller('tasks')
 export class TasksController {
@@ -29,8 +32,13 @@ export class TasksController {
   async getTasks(
     @Query() filters: FindTaskParamsDto,
     @Query() pagination: PaginationParams,
+    @CurrentUserId() userId: string,
   ): Promise<PaginationResponse<Task>> {
-    const [items, total] = await this.tasksService.findAll(filters, pagination);
+    const [items, total] = await this.tasksService.findAll(
+      filters,
+      pagination,
+      userId,
+    );
     return {
       data: items,
       meta: {
@@ -41,23 +49,35 @@ export class TasksController {
   }
 
   @Get(':id')
-  getTaskById(@Param() params: FindOneParamsDto): Promise<Task> {
-    const task = this.findOneOrThrow(params.id);
+  async getTaskById(
+    @Param() params: FindOneParamsDto,
+    @CurrentUserId() userId: string,
+  ): Promise<Task> {
+    const task = await this.findOneOrThrow(params.id);
+    this.checkTaskOwnership(task, userId);
     return task;
   }
 
   @Post()
-  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-    return this.tasksService.create(createTaskDto);
+  async createTask(
+    @Body() createTaskDto: CreateTaskDto,
+    @CurrentUserId() userId: string,
+  ): Promise<Task> {
+    return this.tasksService.create({
+      ...createTaskDto,
+      userId,
+    });
   }
 
   @Patch(':id')
   async updateTask(
     @Param() params: FindOneParamsDto,
     @Body() updateTaskDto: UpdateTaskDto,
+    @CurrentUserId() userId: string,
   ): Promise<Task> {
     try {
       const task = await this.findOneOrThrow(params.id);
+      this.checkTaskOwnership(task, userId);
       return await this.tasksService.update(task, updateTaskDto);
     } catch (error) {
       if (error instanceof WrongTaskStatusException) {
@@ -71,8 +91,10 @@ export class TasksController {
   async addLabels(
     @Param() params: FindOneParamsDto,
     @Body() labelDtos: CreateTaskLabelDto[],
+    @CurrentUserId() userId: string,
   ): Promise<Task> {
     const task = await this.findOneOrThrow(params.id);
+    this.checkTaskOwnership(task, userId);
     return await this.tasksService.addLabels(task, labelDtos);
   }
 
@@ -80,14 +102,24 @@ export class TasksController {
   async removeLabels(
     @Param() params: FindOneParamsDto,
     @Body() labelNames: string[],
+    @CurrentUserId() userId: string,
   ): Promise<Task> {
     const task = await this.findOneOrThrow(params.id);
+
+    this.checkTaskOwnership(task, userId);
+
     return await this.tasksService.removeLabels(task, labelNames);
   }
 
   @Delete(':id')
-  async deleteTask(@Param() params: FindOneParamsDto): Promise<void> {
+  async deleteTask(
+    @Param() params: FindOneParamsDto,
+    @CurrentUserId() userId: string,
+  ): Promise<void> {
     const task = await this.findOneOrThrow(params.id);
+
+    this.checkTaskOwnership(task, userId);
+
     return await this.tasksService.delete(task);
   }
 
@@ -97,5 +129,15 @@ export class TasksController {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
     return task;
+  }
+
+  checkTaskOwnership(task: Task, userId: string) {
+    if (task.userId !== userId) {
+      throw new ForbiddenException(
+        "You don't have permission to access this task",
+      );
+    }
+
+    return true;
   }
 }

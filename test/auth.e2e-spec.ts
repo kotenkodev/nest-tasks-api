@@ -7,7 +7,7 @@ import { Role } from '../src/users/dtos/role.enum';
 import { PasswordService } from '../src/users/password/password.service';
 import { JwtService } from '@nestjs/jwt';
 
-describe('AppController (e2e)', () => {
+describe('AuthController (e2e)', () => {
   let testSetup: TestSetup;
 
   beforeEach(async () => {

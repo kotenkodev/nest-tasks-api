@@ -16,11 +16,16 @@ export class Task {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 100,
+    nullable: false,
+  })
   title: string;
 
   @Column({
     type: 'text',
+    nullable: false,
   })
   description: string;
 
@@ -31,7 +36,10 @@ export class Task {
   })
   status: TaskStatus;
 
-  @ManyToOne(() => User, (user) => user.tasks, { onDelete: 'CASCADE' })
+  @Column()
+  userId: string;
+
+  @ManyToOne(() => User, (user) => user.tasks, { nullable: false })
   user: User;
 
   @OneToMany(() => TaskLabel, (label) => label.task, {
