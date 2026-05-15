@@ -21,7 +21,7 @@ export class CreateTaskDto {
   @IsEnum(TaskStatus)
   status: TaskStatus;
 
-  userId;
+  userId: string;
 
   @IsOptional()
   @ValidateNested({ each: true })

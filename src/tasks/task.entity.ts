@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -36,10 +37,11 @@ export class Task {
   })
   status: TaskStatus;
 
-  @Column()
+  @Column({ nullable: false })
   userId: string;
 
   @ManyToOne(() => User, (user) => user.tasks, { nullable: false })
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @OneToMany(() => TaskLabel, (label) => label.task, {
