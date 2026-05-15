@@ -100,8 +100,6 @@ describe('AppController (e2e)', () => {
       .get(JwtService)
       .verify(response.body.accessToken);
 
-    console.log(decoded);
-
     expect(decoded.roles).toEqual(
       expect.arrayContaining([Role.ADMIN, Role.USER]),
     );
@@ -127,6 +125,103 @@ describe('AppController (e2e)', () => {
         expect(res.body.email).toBe(testUser.email);
         expect(res.body.name).toBe(testUser.name);
         expect(res.body.password).toBeUndefined();
+      });
+  });
+
+  it('/auth/admin (GET) - admin access', async () => {
+    const userRepo = testSetup.app.get(getRepositoryToken(User));
+
+    await userRepo.save({
+      ...testUser,
+      password: await testSetup.app
+        .get(PasswordService)
+        .hash(testUser.password),
+      roles: [Role.ADMIN, Role.USER],
+    });
+
+    const response = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send(testUser);
+
+    const token = response.body.accessToken;
+
+    await request(testSetup.app.getHttpServer())
+      .get('/auth/admin')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+  });
+
+  it('/auth/admin (GET) - admin access', async () => {
+    const userRepo = testSetup.app.get(getRepositoryToken(User));
+
+    await userRepo.save({
+      ...testUser,
+      password: await testSetup.app
+        .get(PasswordService)
+        .hash(testUser.password),
+      roles: [Role.ADMIN, Role.USER],
+    });
+
+    const response = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send(testUser);
+
+    const token = response.body.accessToken;
+
+    await request(testSetup.app.getHttpServer())
+      .get('/auth/admin')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.message).toBe('This is for admins only!');
+      });
+  });
+
+  it('/auth/admin (GET) - non-admin access', async () => {
+    const userRepo = testSetup.app.get(getRepositoryToken(User));
+
+    await userRepo.save({
+      ...testUser,
+      password: await testSetup.app
+        .get(PasswordService)
+        .hash(testUser.password),
+      roles: [Role.USER],
+    });
+
+    const response = await request(testSetup.app.getHttpServer())
+      .post('/auth/login')
+      .send(testUser);
+
+    const token = response.body.accessToken;
+
+    await request(testSetup.app.getHttpServer())
+      .get('/auth/admin')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(403)
+      .expect((res) => {
+        expect(res.body.message).toBe('Forbidden resource');
+      });
+  });
+
+  it('/auth/admin (GET) - non-authorized access', async () => {
+    await request(testSetup.app.getHttpServer())
+      .get('/auth/admin')
+      .expect(401)
+      .expect((res) => {
+        expect(res.body.message).toBe('Unauthorized');
+      });
+  });
+
+  it('/auth/register (POST) - attempting to register as admin', async () => {
+    await request(testSetup.app.getHttpServer())
+      .post('/auth/register')
+      .send({ ...testUser, roles: [Role.ADMIN] })
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.roles).toEqual(expect.arrayContaining([Role.USER]));
+        expect(res.body.roles).not.toEqual(
+          expect.arrayContaining([Role.ADMIN]),
+        );
       });
   });
 });

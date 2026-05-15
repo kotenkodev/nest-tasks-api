@@ -19,6 +19,8 @@ import { UserService } from '../user/user.service';
 import type { AuthRequest } from './auth.request';
 import { AuthGuard } from '../guards/auth.guard';
 import { Public } from '../decorators/public.decorator';
+import { Role } from '../dtos/role.enum';
+import { Roles } from '../decorators/roles.decorator';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -55,5 +57,11 @@ export class AuthController {
     }
 
     return user;
+  }
+
+  @Get('admin')
+  @Roles(Role.ADMIN)
+  adminOnly(): { message: string } {
+    return { message: 'This is for admins only!' };
   }
 }
