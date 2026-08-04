@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggerService } from './logger/logger.service';
-import { TypedConfigService } from './config/typed-config.service';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -18,12 +17,6 @@ describe('AppController', () => {
             log: jest.fn((msg: string) => msg),
           },
         },
-        {
-          provide: TypedConfigService,
-          useValue: {
-            get: jest.fn().mockReturnValue({ messagePrefix: 'Hello' }),
-          },
-        },
       ],
     }).compile();
 
@@ -31,8 +24,10 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return greeting message', () => {
-      expect(appController.getHello()).toContain('Hello');
+    it('should return health status ok', () => {
+      const result = appController.getHealth();
+      expect(result.status).toBe('ok');
+      expect(result).toHaveProperty('timestamp');
     });
   });
 });
