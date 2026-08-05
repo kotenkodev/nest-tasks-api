@@ -45,6 +45,8 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ vars.JWT_EXPIRES_IN }}
           MESSAGE_PREFIX: ${{ vars.APP_MESSAGE_PREFIX }}
+
+
         run: |
           cat << EOF > .env
           NODE_ENV=${NODE_ENV}
