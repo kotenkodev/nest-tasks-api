@@ -8,10 +8,10 @@ services:
     env_file:
       - .env
     environment:
-      DB_HOST: postgres
+      DB_HOST: ${DB_HOST:-postgres}
 
   postgres:
-    profiles: ["with-db"]
+    profiles: ['with-db']
     image: postgres:16
     container_name: my_postgres
     environment:
@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
 
   postgres_test:
-    profiles: ["with-test-db"]
+    profiles: ['with-test-db']
     image: postgres:16
     container_name: my_postgres_test
     environment:
