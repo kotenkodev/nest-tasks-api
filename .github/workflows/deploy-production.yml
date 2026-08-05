@@ -8,7 +8,7 @@ jobs:
     name: Trigger Prod Deploy
     uses: ./.github/workflows/deploy-shared.yml
     with:
-      environment_name: production
+      environment_name: prod
       runner_tag: prod
       include_local_db: false
     secrets: inherit

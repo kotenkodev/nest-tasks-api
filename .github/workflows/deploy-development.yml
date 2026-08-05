@@ -10,7 +10,7 @@ jobs:
     name: Trigger Dev Deploy
     uses: ./.github/workflows/deploy-shared.yml
     with:
-      environment_name: development
+      environment_name: dev
       runner_tag: dev
       include_local_db: true
     secrets: inherit

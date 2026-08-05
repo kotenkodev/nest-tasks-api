@@ -35,13 +35,16 @@ jobs:
       - name: Create .env file
         env:
           NODE_ENV: ${{ vars.NODE_ENV }}
-          PORT: ${{ vars.PORT || 8080 }}
+          PORT: ${{ vars.PORT }}
           DB_HOST: ${{ vars.DB_HOST }}
           DB_PORT: ${{ vars.DB_PORT }}
           DB_USERNAME: ${{ vars.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_DATABASE: ${{ vars.DB_DATABASE }}
+          DB_NAME: ${{ vars.DB_NAME }}
+          DB_SYNC: ${{ vars.DB_SYNC }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ vars.JWT_EXPIRES_IN }}
+          MESSAGE_PREFIX: ${{ vars.APP_MESSAGE_PREFIX }}
         run: |
           cat << EOF > .env
           NODE_ENV=${NODE_ENV}
@@ -50,9 +53,13 @@ jobs:
           DB_PORT=${DB_PORT}
           DB_USERNAME=${DB_USERNAME}
           DB_PASSWORD=${DB_PASSWORD}
-          DB_DATABASE=${DB_DATABASE}
+          DB_NAME=${DB_NAME}
+          DB_SYNC=${DB_SYNC}
           JWT_SECRET=${JWT_SECRET}
+          JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+          MESSAGE_PREFIX=${MESSAGE_PREFIX}
           EOF
+
 
       - name: Start Database
         if: inputs.include_local_db == true
