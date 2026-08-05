@@ -1,0 +1,16 @@
+name: Development Deployment
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  call-deploy:
+    name: Trigger Dev Deploy
+    uses: ./.github/workflows/deploy-shared.yml
+    with:
+      environment_name: dev
+      runner_tag: dev
+      include_local_db: true
+    secrets: inherit

@@ -54,7 +54,7 @@ describe('TasksController (e2e)', () => {
   });
 
   it('/tasks (POST) - create task', async () => {
-    const response = await request(testSetup.app.getHttpServer())
+    await request(testSetup.app.getHttpServer())
       .post('/tasks')
       .set('Authorization', `Bearer ${authToken}`)
       .send({

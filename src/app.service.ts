@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { LoggerService } from './logger/logger.service';
-import { AppConfig } from './config/app.config';
-import { TypedConfigService } from './config/typed-config.service';
 
 @Injectable()
 export class AppService {
-  constructor(
-    private readonly logger: LoggerService,
-    private readonly configService: TypedConfigService,
-  ) {}
+  constructor(private readonly logger: LoggerService) {}
 
-  getHello(): string {
-    const prefix = this.configService.get<AppConfig>('app')?.messagePrefix;
-    return this.logger.log(`${prefix}, welcome to NestJS!`);
+  getHealth(): { status: string; timestamp: string } {
+    this.logger.log('Health check requested');
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+    };
   }
 }

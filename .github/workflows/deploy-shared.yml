@@ -1,0 +1,81 @@
+name: Reusable Deployment Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment_name:
+        required: true
+        type: string
+        description: 'Target environment name (development or production)'
+      runner_tag:
+        required: true
+        type: string
+        description: 'Self-hosted runner tag (dev or prod)'
+      include_local_db:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to spin up a local PostgreSQL Docker container on this instance'
+    secrets:
+      DB_PASSWORD:
+        required: false
+      JWT_SECRET:
+        required: false
+
+jobs:
+  deploy:
+    name: Deploy App
+    runs-on: [self-hosted, '${{ inputs.runner_tag }}']
+    environment:
+      name: ${{ inputs.environment_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        env:
+          NODE_ENV: ${{ vars.NODE_ENV }}
+          PORT: ${{ vars.PORT || 8080 }}
+          DB_HOST: ${{ vars.DB_HOST }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          DB_USERNAME: ${{ vars.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ vars.DB_NAME }}
+          DB_SYNC: ${{ vars.DB_SYNC }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ vars.JWT_EXPIRES_IN }}
+          MESSAGE_PREFIX: ${{ vars.APP_MESSAGE_PREFIX }}
+
+
+        run: |
+          cat << EOF > .env
+          NODE_ENV=${NODE_ENV}
+          PORT=${PORT}
+          DB_HOST=${DB_HOST}
+          DB_PORT=${DB_PORT}
+          DB_USERNAME=${DB_USERNAME}
+          DB_PASSWORD=${DB_PASSWORD}
+          DB_NAME=${DB_NAME}
+          DB_SYNC=${DB_SYNC}
+          JWT_SECRET=${JWT_SECRET}
+          JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+          MESSAGE_PREFIX=${MESSAGE_PREFIX}
+          EOF
+
+
+      - name: Start Database
+        if: inputs.include_local_db == true
+        run: |
+          docker compose --profile with-db up -d postgres
+          sleep 5
+
+      - name: Build App Docker Image
+        run: docker compose build app
+
+      - name: Run Containerized Database Migrations
+        run: docker compose run --rm app npm run migration:run:prod
+
+      - name: Deploy App Container
+        run: |
+          docker compose up -d app
+          docker image prune -f
