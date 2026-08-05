@@ -35,7 +35,7 @@ jobs:
       - name: Create .env file
         env:
           NODE_ENV: ${{ vars.NODE_ENV }}
-          PORT: ${{ vars.PORT }}
+          PORT: ${{ vars.PORT || 8080 }}
           DB_HOST: ${{ vars.DB_HOST }}
           DB_PORT: ${{ vars.DB_PORT }}
           DB_USERNAME: ${{ vars.DB_USERNAME }}
