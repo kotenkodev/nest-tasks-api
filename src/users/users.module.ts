@@ -23,7 +23,7 @@ import { RolesGuard } from './guards/roles.guard';
         return {
           secret: auth?.jwt.secret,
           signOptions: {
-            expiresIn: auth?.jwt.expiresIn as any,
+            expiresIn: auth?.jwt.expiresIn,
           },
         };
       },
