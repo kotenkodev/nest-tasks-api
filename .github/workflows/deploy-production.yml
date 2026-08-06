@@ -4,7 +4,11 @@ on:
   workflow_dispatch:
 
 jobs:
+  run-tests:
+    uses: ./.github/workflows/ci.yml
+
   call-deploy:
+    needs: run-tests
     name: Trigger Prod Deploy
     uses: ./.github/workflows/deploy-shared.yml
     with:
