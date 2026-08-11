@@ -1,8 +1,6 @@
 name: Continuous Integration
 
 on:
-  push:
-    branches: [dev]
   pull_request:
     branches: [main, dev]
   workflow_call:
@@ -32,3 +30,17 @@ jobs:
 
       - name: Run unit tests
         run: npm test -- --passWithNoTests
+
+      - name: Start test database
+        run: |
+          touch .env
+          docker compose --profile with-test-db up -d --wait postgres_test
+
+      - name: Run e2e tests
+        env:
+          JWT_SECRET: e2e_test_secret
+        run: npm run test:e2e
+
+      - name: Stop test database
+        if: always()
+        run: docker compose --profile with-test-db down || true

@@ -7,6 +7,6 @@ export interface AppConfig {
 export const appConfig = registerAs(
   'app',
   (): AppConfig => ({
-    messagePrefix: process.env.MESSAGE_PREFIX || 'Hello',
+    messagePrefix: process.env.APP_MESSAGE_PREFIX || 'Hello',
   }),
 );

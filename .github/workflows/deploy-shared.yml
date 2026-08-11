@@ -44,7 +44,7 @@ jobs:
           DB_SYNC: ${{ vars.DB_SYNC }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ vars.JWT_EXPIRES_IN }}
-          MESSAGE_PREFIX: ${{ vars.APP_MESSAGE_PREFIX }}
+          APP_MESSAGE_PREFIX: ${{ vars.APP_MESSAGE_PREFIX }}
 
 
         run: |
@@ -59,15 +59,13 @@ jobs:
           DB_SYNC=${DB_SYNC}
           JWT_SECRET=${JWT_SECRET}
           JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
-          MESSAGE_PREFIX=${MESSAGE_PREFIX}
+          APP_MESSAGE_PREFIX=${APP_MESSAGE_PREFIX}
           EOF
 
 
       - name: Start Database
         if: inputs.include_local_db == true
-        run: |
-          docker compose --profile with-db up -d postgres
-          sleep 5
+        run: docker compose --profile with-db up -d --wait postgres
 
       - name: Build App Docker Image
         run: docker compose build app
@@ -79,3 +77,16 @@ jobs:
         run: |
           docker compose up -d app
           docker image prune -f
+
+      - name: Verify deployment
+        run: |
+          for i in 1 2 3 4 5; do
+            if curl -sf http://localhost:80/; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 5s..."
+            sleep 5
+          done
+          echo "Health check failed after 5 attempts"
+          exit 1
