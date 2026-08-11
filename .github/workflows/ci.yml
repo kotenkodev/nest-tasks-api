@@ -37,6 +37,8 @@ jobs:
           docker compose --profile with-test-db up -d --wait postgres_test
 
       - name: Run e2e tests
+        env:
+          JWT_SECRET: e2e_test_secret
         run: npm run test:e2e
 
       - name: Stop test database

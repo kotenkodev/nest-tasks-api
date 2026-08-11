@@ -18,5 +18,5 @@ export const appConfigSchema = Joi.object({
   DB_NAME: Joi.string().empty('').default('tasks'),
   DB_SYNC: Joi.boolean().default(false),
   JWT_SECRET: Joi.string().required(),
-  JWT_EXPIRES_IN: Joi.string().required().default('1h'),
+  JWT_EXPIRES_IN: Joi.string().default('1h'),
 });
