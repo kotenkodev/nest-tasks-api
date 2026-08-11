@@ -81,7 +81,7 @@ jobs:
       - name: Verify deployment
         run: |
           for i in 1 2 3 4 5; do
-            if curl -sf http://localhost:${PORT:-8080}/; then
+            if curl -sf http://localhost:80/; then
               echo "Health check passed"
               exit 0
             fi
