@@ -42,4 +42,3 @@ jobs:
       - name: Stop test database
         if: always()
         run: docker compose --profile with-test-db down || true
-
