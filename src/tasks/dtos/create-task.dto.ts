@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  MaxLength,
   ValidateNested,
 } from 'class-validator';
 import { TaskStatus } from '../task.model';
@@ -12,6 +13,7 @@ import { Type } from 'class-transformer';
 export class CreateTaskDto {
   @IsNotEmpty()
   @IsString()
+  @MaxLength(100)
   title: string;
 
   @IsNotEmpty()

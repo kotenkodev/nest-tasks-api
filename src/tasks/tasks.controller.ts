@@ -7,6 +7,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseArrayPipe,
   Patch,
   Post,
   Query,
@@ -90,7 +91,8 @@ export class TasksController {
   @Post(':id/labels')
   async addLabels(
     @Param() params: FindOneParamsDto,
-    @Body() labelDtos: CreateTaskLabelDto[],
+    @Body(new ParseArrayPipe({ items: CreateTaskLabelDto }))
+    labelDtos: CreateTaskLabelDto[],
     @CurrentUserId() userId: string,
   ): Promise<Task> {
     const task = await this.findOneOrThrow(params.id);
@@ -101,7 +103,8 @@ export class TasksController {
   @Delete(':id/labels')
   async removeLabels(
     @Param() params: FindOneParamsDto,
-    @Body() labelNames: string[],
+    @Body(new ParseArrayPipe({ items: String }))
+    labelNames: string[],
     @CurrentUserId() userId: string,
   ): Promise<Task> {
     const task = await this.findOneOrThrow(params.id);
